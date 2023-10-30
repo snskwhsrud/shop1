@@ -25,6 +25,7 @@ const BookSearch = () => {
   const [books, setBooks] = useState([]);
   const [total, setTotal] = useState(0);
   const [end, setEnd] = useState(false);
+  const [chcnt, setChcnt] = useState(0);
 
   const getBooks = async () => {
     const url = `https://dapi.kakao.com/v3/search/book?target=title&query=${query}&size=5&page=${page}`;
@@ -35,7 +36,7 @@ const BookSearch = () => {
     const res = await axios(url, config);
     //console.log(res.data);
     let docs = res.data.documents;
-    docs = docs.map((doc) => doc && { ...doc, checked: true });
+    docs = docs.map((doc) => doc && { ...doc, checked: false });
     setBooks(docs);
     setTotal(res.data.meta.pageable_count);
     setEnd(res.data.meta.is_end);
@@ -45,6 +46,13 @@ const BookSearch = () => {
   useEffect(() => {
     getBooks();
   }, [location]);
+
+  useEffect(() => {
+    let cnt = 0;
+    books.forEach((book) => book.checked && cnt++);
+    //console.log('.............', cnt)
+    setChcnt(cnt);
+  }, [books]);
 
   const onSearch = (e) => {
     e.preventDefault();
@@ -72,6 +80,42 @@ const BookSearch = () => {
     }
   };
 
+  const onChangeAll = (e) => {
+    const docs = books.map(
+      (book) => book && { ...book, checked: e.target.checked }
+    );
+    setBooks(docs);
+  };
+
+  const onChangeSingle = (e, isbn) => {
+    const docs = books.map((book) =>
+      book.isbn === isbn ? { ...book, checked: e.target.checked } : book
+    );
+    setBooks(docs);
+  };
+
+  const onClickSave = async () => {
+    if (chcnt === 0) {
+      alert("저장할 도서를 선택하세요!");
+    } else {
+      if (window.confirm(`${chcnt}권 도서를 저장하실래요?`)) {
+        let count = 0;
+        for (const book of books) {
+          if (book.checked) {
+            //도서저장
+            const url = "/books/insert";
+            const res = await axios.post(url, {
+              ...book,
+              authors: book.authors.join(),
+            });
+            if (res.data === 0) count++;
+          }
+        }
+        alert(`${count}권 저장이되었습니다!`);
+        setBooks(books.map((book) => book && { ...book, checked: false }));
+      }
+    }
+  };
   if (loading)
     return (
       <div className="text-center my-5">
@@ -94,6 +138,11 @@ const BookSearch = () => {
           </form>
         </Col>
         <Col className="mt-1">검색수: {total}권</Col>
+        <Col className="text-end">
+          <Button size="sm" onClick={onClickSave}>
+            선택저장
+          </Button>
+        </Col>
       </Row>
       <hr />
       <Table striped>
@@ -105,7 +154,11 @@ const BookSearch = () => {
             <th>저자</th>
             <th>저장</th>
             <th>
-              <input type="checkbox" />
+              <input
+                checked={books.length === chcnt}
+                type="checkbox"
+                onChange={onChangeAll}
+              />
             </th>
           </tr>
         </thead>
@@ -129,7 +182,13 @@ const BookSearch = () => {
                 </Button>
               </td>
               <td>
-                <input type="checkbox" checked={book.checked} />
+                <input
+                  onChange={(e) => {
+                    onChangeSingle(e, book.isbn);
+                  }}
+                  type="checkbox"
+                  checked={book.checked}
+                />
               </td>
             </tr>
           ))}
