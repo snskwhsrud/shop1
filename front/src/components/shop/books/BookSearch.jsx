@@ -29,12 +29,14 @@ const BookSearch = () => {
   const getBooks = async () => {
     const url = `https://dapi.kakao.com/v3/search/book?target=title&query=${query}&size=5&page=${page}`;
     const config = {
-      headers: { Authorization: "KakaoAK 9338b761c241f450b90ad32abbb999f2" },
+      headers: { Authorization: "KakaoAK d98342bfb3d10bd8a8d18f10982fe1c8" },
     };
     setLoading(true);
     const res = await axios(url, config);
     //console.log(res.data);
-    setBooks(res.data.documents);
+    let docs = res.data.documents;
+    docs = docs.map((doc) => doc && { ...doc, checked: true });
+    setBooks(docs);
     setTotal(res.data.meta.pageable_count);
     setEnd(res.data.meta.is_end);
     setLoading(false);
@@ -101,7 +103,10 @@ const BookSearch = () => {
             <th>제목</th>
             <th>가격</th>
             <th>저자</th>
-            <td>저장</td>
+            <th>저장</th>
+            <th>
+              <input type="checkbox" />
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -114,12 +119,17 @@ const BookSearch = () => {
                 />
               </td>
               <td>{book.title}</td>
-              <td>{book.price}원</td>
+              <td>
+                {book.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}원
+              </td>
               <td>{book.authors}</td>
               <td>
                 <Button size="sm" onClick={() => onInsert(book)}>
                   저장
                 </Button>
+              </td>
+              <td>
+                <input type="checkbox" checked={book.checked} />
               </td>
             </tr>
           ))}
