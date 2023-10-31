@@ -41,13 +41,38 @@ a {
   margin-right: 20px;
 }
 
-.active {
-  color: black;
+.navbar-nav .active {
+  color: white;
 }
+
+.navbar-nav a {
+  color: #d1cfcf;
+}
+
 .ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
+}
+
+.photo {
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.heart {
+  color: pink;
+  cursor: pointer;
+}
+
+.rcnt,
+.fcnt {
+  color: gray;
+  font-size: 0.7rem;
+}
+
+.message {
+  color: gray;
 }
