@@ -13,14 +13,14 @@ import { BsHeartFill, BsHeart } from "react-icons/bs";
 import { BiMessageDetail } from "react-icons/bi";
 import Pagination from "react-js-pagination";
 import "./Pagination.css";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, NavLink } from "react-router-dom";
 
 const HomePage = () => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
   const navi = useNavigate();
-
+  const size = 6;
   const location = useLocation();
   const search = new URLSearchParams(location.search);
   const page = search.get("page") ? parseInt(search.get("page")) : 1;
@@ -30,7 +30,7 @@ const HomePage = () => {
   );
 
   const getBooks = async () => {
-    const url = `/books/list.json?query=${query}&page=${page}&size=6&uid=${sessionStorage.getItem(
+    const url = `/books/list.json?query=${query}&page=${page}&size=${size}&uid=${sessionStorage.getItem(
       "uid"
     )}`;
     setLoading(true);
@@ -52,6 +52,26 @@ const HomePage = () => {
   const onSubmit = (e) => {
     e.preventDefault();
     navi(`${path}?query=${query}&page=${page}`);
+  };
+
+  const onClickHeart = async (bid) => {
+    if (sessionStorage.getItem("uid")) {
+      await axios.post("/books/insert/favorite", {
+        uid: sessionStorage.getItem("uid"),
+        bid: bid,
+      });
+      getBooks();
+    } else {
+      navi("/users/login");
+    }
+  };
+
+  const onClickFillHeart = async (bid) => {
+    await axios.post("/books/delete/favorite", {
+      uid: sessionStorage.getItem("uid"),
+      bid: bid,
+    });
+    getBooks();
   };
 
   if (loading)
@@ -79,13 +99,15 @@ const HomePage = () => {
       </Row>
       <Row>
         {books.map((book) => (
-          <Col xs={6} md={4} lg={2} className="mb-3">
+          <Col xs={6} md={4} lg={2} className="mb-3" key={book.bid}>
             <Card>
               <Card.Body>
-                <img
-                  src={book.image || "http://via.placeholder.com/170x250"}
-                  width="100%"
-                />
+                <NavLink to={`/books/info/${book.bid}`}>
+                  <img
+                    src={book.image || "http://via.placeholder.com/170x250"}
+                    width="100%"
+                  />
+                </NavLink>
                 <small className="ellipsis mt-2">{book.title}</small>
               </Card.Body>
               <Card.Footer className="text-end">
@@ -99,7 +121,11 @@ const HomePage = () => {
                 )}
                 <span className="ms-3">
                   <span className="heart">
-                    {book.ucnt === 0 ? <BsHeart /> : <BsHeartFill />}
+                    {book.ucnt === 0 ? (
+                      <BsHeart onClick={() => onClickHeart(book.bid)} />
+                    ) : (
+                      <BsHeartFill onClick={() => onClickFillHeart(book.bid)} />
+                    )}
                   </span>
                   <span className="ms-1 fcnt">{book.fcnt}</span>
                 </span>
@@ -111,7 +137,7 @@ const HomePage = () => {
       {total > 6 && (
         <Pagination
           activePage={page}
-          itemsCountPerPage={6}
+          itemsCountPerPage={size}
           totalItemsCount={total}
           pageRangeDisplayed={10}
           prevPageText={"‹"}
