@@ -76,3 +76,8 @@ a {
 .message {
   color: gray;
 }
+
+.uname {
+  font-size: 0.5;
+  color: grey;
+}

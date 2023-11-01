@@ -13,4 +13,46 @@ router.get("/list.json", function (req, res) {
   });
 });
 
+//리뷰등록
+router.post("/insert", function (req, res) {
+  const uid = req.body.uid;
+  const bid = req.body.bid;
+  const contents = req.body.contents;
+  const sql = "insert into review(uid,bid,contents) values(?,?,?)";
+  db.get().query(sql, [uid, bid, contents], function (err) {
+    if (err) {
+      res.send("0");
+    } else {
+      res.send("1");
+    }
+  });
+});
+
+//리뷰삭제
+router.post("/delete", function (req, res) {
+  const rid = req.body.rid;
+  const sql = "delete from review where rid=?";
+  db.get().query(sql, [rid], function (err) {
+    if (err) {
+      res.send("0");
+    } else {
+      res.send("1");
+    }
+  });
+});
+
+//리뷰수정
+router.post("/update", function (req, res) {
+  const rid = req.body.rid;
+  const contents = req.body.contents;
+  const sql = "update review set contents=?, regdate=now() where rid=? ";
+  db.get().query(sql, [contents, rid], function (err) {
+    if (err) {
+      res.send("0");
+    } else {
+      res.send("1");
+    }
+  });
+});
+
 module.exports = router;

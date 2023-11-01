@@ -112,7 +112,7 @@ const BookInfo = () => {
             <div className="px-3">{book.contents}</div>
           </Tab>
           <Tab eventKey="profile" title="리뷰">
-            <ReviewPage location={location} bid={book.bid} />
+            <ReviewPage location={location} setBook={setBook} book={book} />
           </Tab>
         </Tabs>
       </div>
