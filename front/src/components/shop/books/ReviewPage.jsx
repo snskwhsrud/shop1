@@ -1,9 +1,10 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Button, Form, Row, Col } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import Pagination from "react-js-pagination";
 import "../Pagination.css";
+import { BoxContext } from "../BoxContext";
 
 const ReviewPage = ({ location, setBook, book }) => {
   const [reviwes, setReviews] = useState([]);
@@ -12,6 +13,7 @@ const ReviewPage = ({ location, setBook, book }) => {
   const { bid } = useParams();
   const [total, setTotal] = useState(0);
   const [contents, setContents] = useState("");
+  const { box, setBox } = useContext(BoxContext);
 
   const getReviews = async () => {
     const url = `/review/list.json?page=${page}&size=${size}&bid=${bid}`;
@@ -48,7 +50,7 @@ const ReviewPage = ({ location, setBook, book }) => {
 
   const onClickRegister = async () => {
     if (contents === "") {
-      alert("리뷰 내용을 입력하세요!");
+      setBox({ show: true, message: "내용을입력하세요!" });
     } else {
       const res = await axios.post("/review/insert", {
         uid: sessionStorage.getItem("uid"),
@@ -63,12 +65,24 @@ const ReviewPage = ({ location, setBook, book }) => {
   };
 
   const onClickDelete = async (rid) => {
-    if (window.confirm(`${rid}번 리뷰를 삭제하실래요?`)) {
-      const res = await axios.post("/review/delete", { rid: rid });
-      if (res.data === 1) {
-        getReviews();
-      }
-    }
+    /*
+        if(window.confirm(`${rid}번 리뷰를 삭제하실래요?`)){
+            const res=await axios.post('/review/delete', {rid:rid});
+            if(res.data===1) {
+                getReviews();
+            }
+        }
+        */
+    setBox({
+      show: true,
+      message: `${rid}번 리뷰를 삭제하실래요?`,
+      action: async () => {
+        const res = await axios.post("/review/delete", { rid: rid });
+        if (res.data === 1) {
+          getReviews();
+        }
+      },
+    });
   };
 
   const onClickUpdate = (rid) => {
@@ -76,7 +90,21 @@ const ReviewPage = ({ location, setBook, book }) => {
     setReviews(list);
   };
 
-  const onClickCancel = (rid) => {
+  const onClickCancel = (rid, text, contents) => {
+    if (text !== contents) {
+      //if(!window.confirm("정말로 취소할래요?")) return;
+      setBox({
+        show: true,
+        message: "정말로 취소하실래요?",
+        action: () => {
+          return;
+        },
+      });
+      const list = reviwes.map((r) =>
+        r.rid === rid ? { ...r, edit: false, text: r.contents } : r
+      );
+      setReviews(list);
+    }
     const list = reviwes.map((r) =>
       r.rid === rid ? { ...r, edit: false, text: r.contents } : r
     );
@@ -92,12 +120,22 @@ const ReviewPage = ({ location, setBook, book }) => {
 
   const onClickSave = async (rid, text, contents) => {
     if (text === contents) return;
-    if (window.confirm("수정하실래요?")) {
-      const res = await axios.post("/review/update", { rid, contents: text });
-      if (res.data === 1) {
-        getReviews();
-      }
-    }
+    /*
+        if(window.confirm("수정하실래요?")){
+            const res=await axios.post("/review/update", {rid, contents:text});
+            if(res.data === 1) {
+                getReviews();
+              */
+    setBox({
+      show: true,
+      message: "정말로 수정하실래요?",
+      action: async () => {
+        const res = await axios.post("/review/update", { rid, contents: text });
+        if (res.data === 1) {
+          getReviews();
+        }
+      },
+    });
   };
 
   return (
@@ -132,7 +170,7 @@ const ReviewPage = ({ location, setBook, book }) => {
               className="photo"
               width="80%"
             />
-            <div className="uname text-center">{review.uname}</div>
+            <div className="uname">{review.uname}</div>
           </Col>
           <Col>
             <div className="uname">{review.fmtdate}</div>
@@ -179,7 +217,9 @@ const ReviewPage = ({ location, setBook, book }) => {
                     저장
                   </Button>
                   <Button
-                    onClick={() => onClickCancel(review.rid)}
+                    onClick={() =>
+                      onClickCancel(review.rid, review.text, review.contents)
+                    }
                     variant="secondary"
                     size="sm"
                   >

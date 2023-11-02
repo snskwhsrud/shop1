@@ -1,12 +1,14 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { Spinner, Row, Col, Card, Button, Tab, Tabs } from "react-bootstrap";
 import { BsHeartFill, BsHeart } from "react-icons/bs";
 import { BiMessageDetail } from "react-icons/bi";
 import ReviewPage from "./ReviewPage";
+import { BoxContext } from "../BoxContext";
 
 const BookInfo = () => {
+  const { setBox } = useContext(BoxContext);
   const navi = useNavigate();
   const location = useLocation();
   //console.log('...........', location.pathname);
@@ -50,6 +52,22 @@ const BookInfo = () => {
     getBook();
   };
 
+  const onClickCart = async () => {
+    const res = await axios.post("/cart/insert", {
+      bid,
+      uid: sessionStorage.getItem("uid"),
+    });
+    setBox({
+      show: true,
+      message:
+        res.data === 0
+          ? `장바구니에 등록되었습니다.\n쇼핑 계속 하실래요?`
+          : `이미 장바구니에 존재합니다.\n 쇼핑 하시겠습니까?`,
+      action: () => {
+        window.location.href = "/cart/list";
+      },
+    });
+  };
   if (loading)
     return (
       <div className="my-5 text-center">
@@ -91,12 +109,18 @@ const BookInfo = () => {
               <span className="ms-1 fcnt">{book.fcnt}</span>
             </span>
             <hr />
-            <div>
-              <Button variant="warning" className="me-2">
-                장바구니
-              </Button>
-              <Button variant="success">바로구매</Button>
-            </div>
+            {sessionStorage.getItem("uid") && (
+              <div>
+                <Button
+                  onClick={onClickCart}
+                  variant="warning"
+                  className="me-2"
+                >
+                  장바구니
+                </Button>
+                <Button variant="success">바로구매</Button>
+              </div>
+            )}
           </Col>
         </Row>
       </Card>
