@@ -11,7 +11,7 @@ const BookInfo = () => {
   const { setBox } = useContext(BoxContext);
   const navi = useNavigate();
   const location = useLocation();
-  //console.log('...........', location.pathname);
+  const [value, setValue] = useState("");
 
   const { bid } = useParams();
   const [book, setBook] = useState("");
@@ -61,13 +61,14 @@ const BookInfo = () => {
       show: true,
       message:
         res.data === 0
-          ? `장바구니에 등록되었습니다.\n쇼핑 계속 하실래요?`
-          : `이미 장바구니에 존재합니다.\n 쇼핑 하시겠습니까?`,
+          ? `장바구니에 등록되었습니다.\n쇼핑을 계속하실래요?`
+          : `이미 장바구니에 존재합니다.\n쇼핑을 계속하실래요?`,
       action: () => {
-        window.location.href = "/cart/list";
+        window.location.href = "/";
       },
     });
   };
+
   if (loading)
     return (
       <div className="my-5 text-center">
@@ -124,8 +125,8 @@ const BookInfo = () => {
           </Col>
         </Row>
       </Card>
-      {/*상세설명 / 리뷰 */}
-      <div>
+      {/*상세설명/ 리뷰 탭 */}
+      <div className="my-5">
         <Tabs
           defaultActiveKey="review"
           transition={false}
@@ -135,7 +136,7 @@ const BookInfo = () => {
           <Tab eventKey="home" title="상세설명">
             <div className="px-3">{book.contents}</div>
           </Tab>
-          <Tab eventKey="profile" title="리뷰">
+          <Tab eventKey="review" title="리뷰">
             <ReviewPage location={location} setBook={setBook} book={book} />
           </Tab>
         </Tabs>
