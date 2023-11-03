@@ -20,7 +20,14 @@ const CartPage = () => {
   const [count, setCount] = useState(0);
 
   const onClickOrder = () => {
-    navi = `${pathname}$show=order`;
+    if (count === 0) {
+      setBox({
+        show: true,
+        message: "주문할 상품을 선택하세요!",
+      });
+    } else {
+      navi(`${pathname}?show=order`);
+    }
   };
 
   const getCart = async () => {
@@ -195,12 +202,19 @@ const CartPage = () => {
             </Row>
           </Alert>
           <div>
-            <Button onClick={onClickOrder}>주문하기</Button>
+            {books.length > 0 && (
+              <Button variant="success" className="px-5" onClick={onClickOrder}>
+                주문하기
+              </Button>
+            )}
+            <Button variant="warning" className="px-5 ms-2">
+              쇼핑계속하기
+            </Button>
           </div>
         </div>
       )}
 
-      {show === "order" && <OrderPage />}
+      {show === "order" && <OrderPage books={books} />}
     </>
   );
 };

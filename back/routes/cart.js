@@ -9,7 +9,7 @@ router.post("/insert", function (req, res) {
   let sql = "select * from cart where uid=? and bid=?";
   db.get().query(sql, [uid, bid], function (err, rows) {
     if (rows.length == 0) {
-      sql = "insert into cart(uid,bid) values(?,?)";
+      sql = "insert into cart(uid, bid) values(?,?)";
       db.get().query(sql, [uid, bid], function (err) {
         res.send("0");
       });
@@ -22,15 +22,12 @@ router.post("/insert", function (req, res) {
   });
 });
 
-//카드목록
+//카트목록
 router.get("/list.json", function (req, res) {
-  //localhost:5000/cart/list.json?uid=blue$page=1&size=5
+  //localhost:5000/cart/list.json?uid=blue
   const uid = req.query.uid;
-  const page = req.query.page;
-  const size = req.query.size;
-  //console.log(".............", uid, page, size);
   const sql = "call cart_list(?)";
-  db.get().query(sql, [uid, page, size], function (err, rows) {
+  db.get().query(sql, [uid], function (err, rows) {
     res.send({ list: rows[0] });
   });
 });
@@ -71,4 +68,5 @@ router.post("/update", function (req, res) {
     }
   });
 });
+
 module.exports = router;
