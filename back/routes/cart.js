@@ -29,9 +29,9 @@ router.get("/list.json", function (req, res) {
   const page = req.query.page;
   const size = req.query.size;
   //console.log(".............", uid, page, size);
-  const sql = "call cart_list(?,?,?)";
+  const sql = "call cart_list(?)";
   db.get().query(sql, [uid, page, size], function (err, rows) {
-    res.send({ list: rows[0], total: rows[1][0].total });
+    res.send({ list: rows[0] });
   });
 });
 
