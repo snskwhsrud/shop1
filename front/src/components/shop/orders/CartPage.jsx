@@ -14,6 +14,7 @@ const CartPage = () => {
   const [books, setBooks] = useState([]);
   const [total, setTotal] = useState(0);
   const [sum, setSum] = useState(0);
+  const [count, setCount] = useState(0);
 
   const getCart = async () => {
     setLoading(true);
@@ -22,7 +23,9 @@ const CartPage = () => {
         "uid"
       )}&size=${size}&page=${page}`
     );
-    console.log(res.data);
+    //console.log(res.data);
+    let list = res.data.list;
+    list = list.map((book) => book && { ...book, checked: false });
     setBooks(res.data.list);
     setTotal(res.data.total);
 
@@ -36,6 +39,13 @@ const CartPage = () => {
   useEffect(() => {
     getCart();
   }, [page]);
+
+  useEffect(() => {
+    let cnt = 0;
+    books.forEach((book) => book.checked && cnt++);
+    //console.log(cnt);
+    setCount(cnt);
+  }, [books]);
 
   const onChangePage = (page) => {
     setPage(page);
@@ -75,6 +85,20 @@ const CartPage = () => {
     );
   };
 
+  const onChangeAll = (e) => {
+    const list = books.map(
+      (book) => book && { ...book, checked: e.target.checked }
+    );
+    setBooks(list);
+  };
+
+  const onChangeSingle = (e, cid) => {
+    const list = books.map((book) =>
+      book.cid === cid ? { ...book, checked: e.target.checked } : book
+    );
+    setBooks(list);
+  };
+
   if (loading)
     return (
       <div className="my-5 text-center">
@@ -84,10 +108,23 @@ const CartPage = () => {
   return (
     <div className="my-5">
       <h1 className="text-center">장바구니목록</h1>
-      <Table>
+      <Row>
+        <Col className="mx-2">
+          <input
+            type="checkbox"
+            onChange={onChangeAll}
+            checked={books.length === count}
+          />
+          <span className="ms-2">전체선택</span>
+        </Col>
+        <Col className="text-end">
+          <Button size="sm mb-2">선택상품삭제</Button>
+        </Col>
+      </Row>
+      <Table striped hover border>
         <thead>
           <tr>
-            <td>ID</td>
+            <td colSpan={2}>ID</td>
             <td colSpan={2}>제목</td>
             <td className="text-end">가격</td>
             <td>수량</td>
@@ -98,6 +135,13 @@ const CartPage = () => {
         <tbody>
           {books.map((book) => (
             <tr key={book.cid}>
+              <td>
+                <input
+                  onChange={(e) => onChangeSingle(e, book.cid)}
+                  type="checkbox"
+                  checked={book.checked}
+                />
+              </td>
               <td>{book.bid}</td>
               <td>
                 <img
