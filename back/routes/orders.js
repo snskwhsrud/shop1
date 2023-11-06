@@ -23,6 +23,7 @@ router.post("/insert/purchase", function (req, res) {
           res.send(rows[0].last.toString());
         });
       } else {
+        console.log("오류....", err);
         res.send("0");
       }
     }
@@ -63,11 +64,23 @@ router.get("/list/purchase.json", function (req, res) {
 
 //주문상품목록
 router.get("/list/order.json", function (req, res) {
-  //localhost:5000/orders/list/order.json?pid=34
+  //localhost:5000/orders/list/order.json?pid=39
   const pid = req.query.pid;
   const sql = "call order_list(?)";
   db.get().query(sql, [pid], function (err, rows) {
     res.send(rows[0]);
+  });
+});
+
+//주문상품목록(관리자용)
+router.get("/list.json", function (req, res) {
+  //localhost:5000/orders/list.json
+  const page = req.query.page ? req.query.page : 1;
+  const size = req.query.size ? req.query.size : 3;
+  const query = req.query.query ? req.query.query : "";
+  const sql = "call purchase_all(?,?,?)";
+  db.get().query(sql, [page, size, query], function (err, rows) {
+    res.send({ list: rows[0], total: rows[1][0].total });
   });
 });
 module.exports = router;

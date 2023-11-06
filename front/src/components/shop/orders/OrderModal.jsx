@@ -1,6 +1,5 @@
 import axios from "axios";
-import React, { useEffect } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { Table, Alert } from "react-bootstrap";
@@ -12,7 +11,7 @@ const OrderModal = ({ purchase, sum }) => {
   const [list, setList] = useState([]);
 
   const getOrder = async () => {
-    const res = await axios("/orders/list/order.json?pid" + purchase.pid);
+    const res = await axios("/orders/list/order.json?pid=" + purchase.pid);
     //console.log(res.data);
     setList(res.data);
   };
@@ -38,22 +37,22 @@ const OrderModal = ({ purchase, sum }) => {
           <Modal.Title>주문상품</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <div>
-            <div className="my-3">
-              받는이:{purchase.rname} <span>{purchase.str_status}</span>
+          <div className="my-3">
+            <div>
+              받는이: {purchase.rname} <span>({purchase.str_status})</span>
             </div>
             <div>
-              배송지주소:{purchase.raddress1} {purchase.raddress2}
+              배송지주소: {purchase.raddress1} {purchase.raddress2}
             </div>
-            <div>전화:{purchase.rphone}</div>
+            <div>전화: {purchase.rphone}</div>
           </div>
-          <Table>
+          <Table bordered striped hover>
             <thead>
-              <tr>
+              <tr className="text-center">
                 <td>상품번호</td>
                 <td>제목</td>
                 <td>수량</td>
-                <td>금액</td>
+                <td>가격</td>
                 <td>합계</td>
               </tr>
             </thead>
@@ -63,14 +62,13 @@ const OrderModal = ({ purchase, sum }) => {
                   <td>{book.bid}</td>
                   <td>{book.title}</td>
                   <td>{book.qnt}</td>
-                  <td className="text-end">{book.fmtprice}</td>
+                  <td className="text-end">{book.fmtprice}원</td>
                   <td>{book.fmtsum}</td>
                 </tr>
               ))}
-              ;
             </tbody>
           </Table>
-          <Alert className="text-end">총합계:{sum}</Alert>
+          <Alert className="text-end">총합계: {sum}원</Alert>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
@@ -81,4 +79,5 @@ const OrderModal = ({ purchase, sum }) => {
     </>
   );
 };
+
 export default OrderModal;
