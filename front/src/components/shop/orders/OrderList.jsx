@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Table, Spinner } from "react-bootstrap";
 import Pagination from "react-js-pagination";
 import "../Pagination.css";
+import OrderModal from "./OrderModal";
 
 const OrderList = () => {
   const navi = useNavigate();
@@ -64,6 +65,9 @@ const OrderList = () => {
               <td>{p.rphone}</td>
               <td className="text-end">{p.fmtsum}원</td>
               <td>{p.str_status}</td>
+              <td>
+                <OrderModal purchase={p} sum={p.fmtsum} />
+              </td>
             </tr>
           ))}
         </tbody>

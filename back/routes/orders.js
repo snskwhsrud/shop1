@@ -60,4 +60,14 @@ router.get("/list/purchase.json", function (req, res) {
     res.send({ list: rows[0], total: rows[1][0].total });
   });
 });
+
+//주문상품목록
+router.get("/list/order.json", function (req, res) {
+  //localhost:5000/orders/list/order.json?pid=34
+  const pid = req.query.pid;
+  const sql = "call order_list(?)";
+  db.get().query(sql, [pid], function (err, rows) {
+    res.send(rows[0]);
+  });
+});
 module.exports = router;
